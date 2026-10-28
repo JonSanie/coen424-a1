@@ -1,0 +1,36 @@
+syntax = "proto3";
+
+service NobelService {
+  rpc GetLaureatesByCategory(CategoryRequest) returns (CountResponse);
+  rpc GetLaureatesByKeyword(KeywordRequest) returns (CountResponse);
+  rpc GetLaureateDetails(LaureateDetailsRequest) returns (LaureateDetailsResponse);
+}
+
+message CategoryRequest {
+  string category = 1;
+  int32 start_year = 2;
+  int32 end_year = 3;
+}
+
+message KeywordRequest {
+  string keyword = 1;
+}
+
+message LaureateDetailsRequest {
+  string firstname = 1;
+  string lastname = 2;
+}
+
+message CountResponse {
+  int32 count = 1;
+}
+
+message LaureateDetails {
+  string year = 1;
+  string category = 2;
+  string motivation = 3;
+}
+
+message LaureateDetailsResponse {
+  repeated LaureateDetails laureates = 1;
+}
