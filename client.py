@@ -1,6 +1,7 @@
 # pyright: reportAttributeAccessIssue=false
 
 import csv
+import os
 import time
 
 import grpc
@@ -9,7 +10,10 @@ import nobel_pb2
 import nobel_pb2_grpc
 
 
-SERVER_ADDRESS = "coen424-a1-wy88.onrender.com:443"
+SERVER_ADDRESS = os.environ.get(
+    "GRPC_SERVER_ADDRESS",
+    "localhost:50051",
+)
 ITERATIONS = 100
 OUTPUT_FILE = "latencies.csv"
 
