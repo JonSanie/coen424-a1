@@ -16,9 +16,6 @@ from task1_queries import (
 )
 
 
-DEFAULT_GRPC_PORT = 50051
-
-
 def create_redis_client() -> redis.Redis:
     host = os.environ.get("REDIS_HOST")
     port_text = os.environ.get("REDIS_PORT")
@@ -107,7 +104,7 @@ class NobelService(nobel_pb2_grpc.NobelServiceServicer):
 
 
 def serve() -> None:
-    port_text = os.environ.get("PORT", str(DEFAULT_GRPC_PORT))
+    port_text = os.environ.get("PORT", "8080")
     try:
         port = int(port_text)
     except ValueError as error:
@@ -119,7 +116,7 @@ def serve() -> None:
         NobelService(client),
         server,
     )
-    server.add_insecure_port(f"0.0.0.0:{port}")
+    server.add_insecure_port(f"[::]:{port}")
     server.start()
     print(f"NobelService listening on port {port}", flush=True)
 
