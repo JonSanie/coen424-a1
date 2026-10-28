@@ -12,7 +12,7 @@ import nobel_pb2_grpc
 
 SERVER_ADDRESS = os.environ.get(
     "GRPC_SERVER_ADDRESS",
-    "localhost:50051",
+    "https://nobel-service-339047474343.us-east1.run.app:443",
 )
 ITERATIONS = 100
 OUTPUT_FILE = "latencies.csv"
@@ -76,8 +76,9 @@ def save_latencies(
 
 
 def main() -> None:
+    target = SERVER_ADDRESS.removeprefix("https://")
     credentials = grpc.ssl_channel_credentials()
-    with grpc.secure_channel(SERVER_ADDRESS, credentials) as channel:
+    with grpc.secure_channel(target, credentials) as channel:
         stub = nobel_pb2_grpc.NobelServiceStub(channel)
         latencies = measure_latencies(stub)
 
