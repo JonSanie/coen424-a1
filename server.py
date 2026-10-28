@@ -16,7 +16,7 @@ from task1_queries import (
 )
 
 
-GRPC_PORT = 50051
+DEFAULT_GRPC_PORT = 50051
 
 
 def create_redis_client() -> redis.Redis:
@@ -109,14 +109,20 @@ def serve() -> None:
     client.ping()
     create_prize_index(client)
 
+    port_text = os.environ.get("PORT", str(DEFAULT_GRPC_PORT))
+    try:
+        port = int(port_text)
+    except ValueError as error:
+        raise RuntimeError("PORT must be an integer.") from error
+
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
     nobel_pb2_grpc.add_NobelServiceServicer_to_server(
         NobelService(client),
         server,
     )
-    server.add_insecure_port(f"[::]:{GRPC_PORT}")
+    server.add_insecure_port(f"0.0.0.0:{port}")
     server.start()
-    print(f"NobelService listening on port {GRPC_PORT}")
+    print(f"NobelService listening on port {port}")
     server.wait_for_termination()
 
 
