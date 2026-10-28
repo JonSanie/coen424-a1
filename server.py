@@ -39,6 +39,8 @@ def create_redis_client() -> redis.Redis:
         host=host,
         port=port,
         password=password,
+        socket_connect_timeout=10,
+        socket_timeout=10,
         decode_responses=True,
     )
 
@@ -105,16 +107,13 @@ class NobelService(nobel_pb2_grpc.NobelServiceServicer):
 
 
 def serve() -> None:
-    client = create_redis_client()
-    client.ping()
-    create_prize_index(client)
-
     port_text = os.environ.get("PORT", str(DEFAULT_GRPC_PORT))
     try:
         port = int(port_text)
     except ValueError as error:
         raise RuntimeError("PORT must be an integer.") from error
 
+    client = create_redis_client()
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
     nobel_pb2_grpc.add_NobelServiceServicer_to_server(
         NobelService(client),
@@ -122,7 +121,14 @@ def serve() -> None:
     )
     server.add_insecure_port(f"0.0.0.0:{port}")
     server.start()
-    print(f"NobelService listening on port {port}")
+    print(f"NobelService listening on port {port}", flush=True)
+
+    print("Connecting to Redis...", flush=True)
+    client.ping()
+    print("Connected to Redis.", flush=True)
+    create_prize_index(client)
+    print("Redis index is ready.", flush=True)
+    print("NobelService is ready for RPCs.", flush=True)
     server.wait_for_termination()
 
 
