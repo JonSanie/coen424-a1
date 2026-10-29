@@ -67,7 +67,7 @@ def count_laureates_by_category_and_year(
 
     query = Query(
         f"@category:{{{category}}} @year:[{start_year} {end_year}]"
-    ).no_content()
+    ).paging(0, 1000).no_content()
     results = cast(Result, client.ft(INDEX_NAME).search(query))
     return sum(
         len(_json_document(client, result.id).get("laureates", []))
@@ -79,7 +79,7 @@ def count_laureates_by_motivation_keyword(
     client: redis.Redis,
     keyword: str,
 ) -> int:
-    query = Query(f"@motivation:({keyword})").no_content()
+    query = Query(f"@motivation:({keyword})").paging(0, 1000).no_content()
     results = cast(Result, client.ft(INDEX_NAME).search(query))
     return sum(
         sum(
@@ -97,7 +97,9 @@ def find_laureate(
     firstname: str,
     surname: str,
 ) -> list[dict[str, str]]:
-    query = Query(f"@firstname:({firstname}) @surname:({surname})")
+    query = Query(
+        f"@firstname:({firstname}) @surname:({surname})"
+    ).paging(0, 1000)
     results = cast(Result, client.ft(INDEX_NAME).search(query))
     matches: list[dict[str, str]] = []
 
